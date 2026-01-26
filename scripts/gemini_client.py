@@ -1,5 +1,7 @@
 """Google Gemini LLM 클라이언트"""
-import google.generativeai as genai
+import os
+from google import genai
+from google.genai import types
 from config import config
 
 
@@ -7,16 +9,19 @@ class GeminiClient:
     """Gemini API 클라이언트"""
 
     def __init__(self):
-        genai.configure(api_key=config.GEMINI_API_KEY)
-        self.model = genai.GenerativeModel('gemini-1.5-flash-latest')
+        # 환경변수에서 API 키 가져오기 (GOOGLE_API_KEY 또는 GEMINI_API_KEY)
+        api_key = os.getenv("GOOGLE_API_KEY") or config.GEMINI_API_KEY
+        self.client = genai.Client(api_key=api_key)
+        self.model_id = "gemini-2.0-flash-lite"
 
     def generate_briefing_summary(self, market_data: dict) -> str:
         """시황 브리핑 요약 생성"""
         prompt = self._build_prompt(market_data)
 
-        response = self.model.generate_content(
-            prompt,
-            generation_config=genai.types.GenerationConfig(
+        response = self.client.models.generate_content(
+            model=self.model_id,
+            contents=prompt,
+            config=types.GenerateContentConfig(
                 temperature=0.3,
                 max_output_tokens=1000,
             )
