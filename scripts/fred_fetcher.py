@@ -107,6 +107,52 @@ class FREDFetcher:
 
         return None
 
+    def _fetch_yoy_series(self, series_id: str) -> Optional[Dict]:
+        """FRED 시리즈 YoY (전년동월대비) 변화율 조회"""
+        if not self.api_key:
+            return None
+
+        try:
+            url = f"{self.BASE_URL}/series/observations"
+            # 13개월치 데이터 가져오기 (현재 + 12개월 전)
+            params = {
+                "series_id": series_id,
+                "api_key": self.api_key,
+                "file_type": "json",
+                "sort_order": "desc",
+                "limit": 13
+            }
+
+            response = requests.get(url, params=params, timeout=10)
+            response.raise_for_status()
+
+            data = response.json()
+            observations = data.get("observations", [])
+
+            if len(observations) >= 13:
+                latest = observations[0]
+                year_ago = observations[12]
+
+                current_val = float(latest["value"]) if latest["value"] != "." else None
+                year_ago_val = float(year_ago["value"]) if year_ago["value"] != "." else None
+
+                yoy_change = None
+                if current_val is not None and year_ago_val is not None and year_ago_val != 0:
+                    yoy_change = ((current_val - year_ago_val) / year_ago_val) * 100
+
+                return {
+                    "value": round(yoy_change, 2) if yoy_change is not None else None,
+                    "date": latest["date"],
+                    "current_index": current_val,
+                    "year_ago_index": year_ago_val,
+                    "unit": "% YoY"
+                }
+
+        except Exception as e:
+            print(f"FRED YoY fetch error for {series_id}: {e}")
+
+        return None
+
     def fetch_daily_indicators(self) -> Dict:
         """일간 업데이트 지표 수집"""
         results = {}
@@ -127,22 +173,34 @@ class FREDFetcher:
 
     def fetch_key_economic_data(self) -> Dict:
         """주요 경제지표 수집 (최신 발표 기준)"""
-        key_series = {
-            "실업률": "UNRATE",
+        results = {}
+
+        # YoY로 가져올 지표 (물가 관련)
+        yoy_series = {
             "CPI (YoY)": "CPIAUCSL",
             "Core CPI (YoY)": "CPILFESL",
+            "PCE (YoY)": "PCEPI",
+            "Core PCE (YoY)": "PCEPILFE",
+        }
+
+        for name, series_id in yoy_series.items():
+            data = self._fetch_yoy_series(series_id)
+            if data:
+                results[name] = data
+
+        # 일반 지표 (그대로 값 사용)
+        normal_series = {
+            "실업률": "UNRATE",
             "연방기금금리": "FEDFUNDS",
             "GDP 성장률 (QoQ)": "A191RL1Q225SBEA",
-            "ISM 제조업": "MANEMP",
-            "소매판매": "RSAFS",
             "미시간 소비자심리": "UMCSENT",
         }
 
-        results = {}
-        for name, series_id in key_series.items():
+        for name, series_id in normal_series.items():
             data = self._fetch_series(series_id, limit=3)
             if data:
                 results[name] = data
+
         return results
 
     def fetch_all(self) -> Dict:

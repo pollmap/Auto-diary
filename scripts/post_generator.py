@@ -239,18 +239,21 @@ author: 이찬희
         monthly = data.get("monthly", {})
         if monthly:
             lines.append("**주요 경제지표 (최신)**")
-            lines.append("| 지표 | 값 | 변동 | 기준일 |")
-            lines.append("|------|-----|------|--------|")
+            lines.append("| 지표 | 값 | 기준일 |")
+            lines.append("|------|-----|--------|")
             for name, info in monthly.items():
                 if info and info.get("value") is not None:
                     val = info['value']
-                    change_str = f"{info['change']:+.2f}%" if info.get('change') is not None else "-"
-                    # 값의 크기에 따라 포맷 조정
-                    if abs(val) >= 1000:
+                    # YoY 지표는 %로 표시
+                    if info.get("unit") == "% YoY" or "YoY" in name:
+                        val_str = f"{val:+.2f}%"
+                    elif "실업률" in name or "금리" in name:
+                        val_str = f"{val:.2f}%"
+                    elif abs(val) >= 1000:
                         val_str = f"{val:,.0f}"
                     else:
                         val_str = f"{val:.2f}"
-                    lines.append(f"| {name} | {val_str} | {change_str} | {info.get('date', '-')} |")
+                    lines.append(f"| {name} | {val_str} | {info.get('date', '-')} |")
             lines.append("")
 
         return "\n".join(lines)
