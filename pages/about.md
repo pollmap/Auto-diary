@@ -31,6 +31,7 @@ CBDC (암호화폐 연구 동아리) 설립자
 
 ## 연락처
 
+- Email: lch6817556@gmail.com
 - GitHub: [github.com/pollmap](https://github.com/pollmap)
 
 ---
