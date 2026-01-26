@@ -1,0 +1,55 @@
+# Site settings
+title: 이찬희의 디지털 두뇌
+description: 금융 시황 브리핑 & 투자 인사이트
+author: 이찬희
+email: your-email@example.com
+baseurl: "/Auto-diary"
+url: "https://pollmap.github.io"
+
+# Build settings
+markdown: kramdown
+theme: minima
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-sitemap
+  - jekyll-paginate
+
+# Pagination
+paginate: 10
+paginate_path: "/page/:num/"
+
+# Collections
+collections:
+  market:
+    output: true
+    permalink: /market/:year/:month/:day/:title/
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+      author: "이찬희"
+
+# Exclude
+exclude:
+  - scripts/
+  - .env
+  - .env.example
+  - requirements.txt
+  - Gemfile
+  - Gemfile.lock
+  - node_modules/
+  - vendor/
+  - venv/
+  - __pycache__/
+  - "*.pyc"
+
+# Timezone
+timezone: Asia/Seoul
+
+# Analytics (optional)
+# google_analytics: your-tracking-id

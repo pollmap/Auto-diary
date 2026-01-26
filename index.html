@@ -1,0 +1,44 @@
+---
+layout: default
+title: 홈
+---
+
+<div class="home">
+  <h1 class="page-heading">이찬희의 디지털 두뇌</h1>
+
+  <p class="site-description">
+    금융 시황 브리핑 & 투자 인사이트
+  </p>
+
+  <hr>
+
+  <h2>최근 포스트</h2>
+
+  {% if site.posts.size > 0 %}
+    <ul class="post-list">
+      {% for post in site.posts limit:10 %}
+        <li>
+          <span class="post-meta">{{ post.date | date: "%Y.%m.%d" }}</span>
+          <h3>
+            <a class="post-link" href="{{ post.url | relative_url }}">
+              {{ post.title | escape }}
+            </a>
+          </h3>
+          {% if post.categories %}
+            <span class="post-categories">
+              {% for category in post.categories %}
+                <span class="category">{{ category }}</span>
+              {% endfor %}
+            </span>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+
+    <p class="rss-subscribe">
+      <a href="{{ '/feed.xml' | relative_url }}">RSS 구독</a>
+    </p>
+  {% else %}
+    <p>아직 포스트가 없습니다. 곧 시황 브리핑이 자동으로 발행됩니다.</p>
+  {% endif %}
+</div>
