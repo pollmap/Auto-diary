@@ -31,6 +31,7 @@ Fork한 저장소에서 아래 파일들을 수정하세요.
 ```yaml
 title: 나의 투자노트        # ← 원하는 이름으로 변경
 author: 닉네임              # ← 본인 닉네임
+email: your@email.com       # ← 본인 이메일 (또는 삭제)
 description: "금융 시황 브리핑"
 ```
 
