@@ -12,7 +12,7 @@ class GeminiClient:
         # 환경변수에서 API 키 가져오기 (GOOGLE_API_KEY 또는 GEMINI_API_KEY)
         api_key = os.getenv("GOOGLE_API_KEY") or config.GEMINI_API_KEY
         self.client = genai.Client(api_key=api_key)
-        self.model_id = "gemini-2.0-flash-lite"
+        self.model_id = "gemini-1.5-flash"
 
     def generate_briefing_summary(self, market_data: dict) -> str:
         """시황 브리핑 요약 생성"""
