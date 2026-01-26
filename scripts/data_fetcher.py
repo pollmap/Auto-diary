@@ -5,6 +5,9 @@ from typing import Dict
 import yfinance as yf
 import requests
 from config import config
+from fred_fetcher import FREDFetcher
+from fear_greed_fetcher import FearGreedFetcher
+from economic_calendar import EconomicCalendarFetcher
 
 
 class DataFetcher:
@@ -24,11 +27,18 @@ class DataFetcher:
             "global_indices": {},
             "currencies": {},
             "commodities": {},
-            "agriculture": {}
+            "agriculture": {},
+            "economic_indicators": {},
+            "fear_greed": {},
+            "economic_calendar": {}
         }
+        self.fred_fetcher = FREDFetcher()
+        self.fg_fetcher = FearGreedFetcher()
+        self.calendar_fetcher = EconomicCalendarFetcher()
 
     def fetch_all(self) -> Dict:
         """모든 데이터 수집"""
+        # 기존 yfinance 데이터
         self.fetch_crypto()
         self.fetch_yfinance_data(config.US_INDICES, "us_indices")
         self.fetch_yfinance_data(config.MARKET_INDICATORS, "market_indicators")
@@ -39,7 +49,45 @@ class DataFetcher:
         self.fetch_yfinance_data(config.CURRENCIES, "currencies")
         self.fetch_yfinance_data(config.COMMODITIES, "commodities")
         self.fetch_yfinance_data(config.AGRICULTURE, "agriculture")
+
+        # 경제지표 (FRED)
+        self.fetch_economic_indicators()
+
+        # Fear & Greed Index
+        self.fetch_fear_greed()
+
+        # 경제 캘린더
+        self.fetch_economic_calendar()
+
         return self.data
+
+    def fetch_economic_indicators(self) -> None:
+        """FRED 경제지표 수집"""
+        try:
+            fred_data = self.fred_fetcher.fetch_all()
+            self.data["economic_indicators"] = fred_data
+        except Exception as e:
+            print(f"Economic indicators fetch error: {e}")
+
+    def fetch_fear_greed(self) -> None:
+        """Fear & Greed Index 수집"""
+        try:
+            # VIX와 S&P500 변동률 가져오기
+            vix = self.data.get("market_indicators", {}).get("VIX (공포지수)", {}).get("price")
+            sp500_change = self.data.get("us_indices", {}).get("S&P 500", {}).get("change")
+
+            fg_data = self.fg_fetcher.fetch_all(vix, sp500_change)
+            self.data["fear_greed"] = fg_data
+        except Exception as e:
+            print(f"Fear & Greed fetch error: {e}")
+
+    def fetch_economic_calendar(self) -> None:
+        """경제 캘린더 수집"""
+        try:
+            calendar_data = self.calendar_fetcher.fetch_all()
+            self.data["economic_calendar"] = calendar_data
+        except Exception as e:
+            print(f"Economic calendar fetch error: {e}")
 
     def fetch_crypto(self) -> None:
         """CoinGecko에서 암호화폐 데이터 수집"""

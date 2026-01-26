@@ -81,6 +81,29 @@ class TelegramNotifier:
                 lines.append(f"• {name}: ${info['price']:,.2f} ({self._format_change(info.get('change'))})")
         lines.append("")
 
+        # Fear & Greed
+        fear_greed = data.get("fear_greed", {})
+        if fear_greed:
+            lines.append("😱 *시장 심리*")
+            market_fg = fear_greed.get("market", {})
+            if market_fg and market_fg.get("value") is not None:
+                emoji = "🟢" if market_fg["value"] >= 55 else "🟡" if market_fg["value"] >= 45 else "🔴"
+                lines.append(f"• 시장: {emoji} {market_fg['value']}/100 ({market_fg.get('classification', '-')})")
+            crypto_fg = fear_greed.get("crypto", {})
+            if crypto_fg and crypto_fg.get("value") is not None:
+                emoji = "🟢" if crypto_fg["value"] >= 55 else "🟡" if crypto_fg["value"] >= 45 else "🔴"
+                lines.append(f"• 암호화폐: {emoji} {crypto_fg['value']}/100 ({crypto_fg.get('classification', '-')})")
+            lines.append("")
+
+        # FOMC 일정
+        calendar = data.get("economic_calendar", {})
+        fed_events = calendar.get("upcoming_fed", [])
+        if fed_events:
+            lines.append("🏛️ *주요 일정*")
+            for event in fed_events[:2]:
+                lines.append(f"• {event['display']} {event['event']}")
+            lines.append("")
+
         # 링크
         lines.append(f"👉 [전체 보기]({post_url})")
 

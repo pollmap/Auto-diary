@@ -65,6 +65,20 @@ def generate_simple_summary(data: dict) -> str:
         if gold.get("price") and oil.get("price"):
             lines.append(f"금 ${gold['price']:,.0f}, WTI ${oil['price']:.2f}.")
 
+    # Fear & Greed 요약
+    fear_greed = data.get("fear_greed", {})
+    crypto_fg = fear_greed.get("crypto", {})
+    if crypto_fg and crypto_fg.get("value"):
+        lines.append(f"암호화폐 Fear & Greed {crypto_fg['value']}({crypto_fg.get('classification', '-')}).")
+
+    # FOMC 일정 (가까우면 알림)
+    calendar = data.get("economic_calendar", {})
+    fed_events = calendar.get("upcoming_fed", [])
+    if fed_events:
+        next_fomc = fed_events[0]
+        if next_fomc.get("days_until", 999) <= 7:
+            lines.append(f"📅 FOMC {next_fomc['display']}.")
+
     return " ".join(lines) if lines else "오늘의 시황 데이터를 확인하세요."
 
 
