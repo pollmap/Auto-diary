@@ -1,0 +1,8 @@
+yfinance>=0.2.36
+requests>=2.31.0
+pandas>=2.0.0
+google-generativeai>=0.3.0
+python-telegram-bot>=20.0
+pyyaml>=6.0
+python-dotenv>=1.0.0
+fredapi>=0.5.1

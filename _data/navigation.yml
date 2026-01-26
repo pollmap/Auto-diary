@@ -1,0 +1,9 @@
+main:
+  - title: "홈"
+    url: /
+  - title: "시황"
+    url: /market/
+  - title: "기업분석"
+    url: /analysis/
+  - title: "소개"
+    url: /about/
