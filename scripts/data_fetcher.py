@@ -17,6 +17,9 @@ class DataFetcher:
             "timestamp": datetime.now().isoformat(),
             "crypto": {},
             "us_indices": {},
+            "market_indicators": {},
+            "bonds": {},
+            "mag7": {},
             "us_sectors": {},
             "global_indices": {},
             "currencies": {},
@@ -28,6 +31,9 @@ class DataFetcher:
         """모든 데이터 수집"""
         self.fetch_crypto()
         self.fetch_yfinance_data(config.US_INDICES, "us_indices")
+        self.fetch_yfinance_data(config.MARKET_INDICATORS, "market_indicators")
+        self.fetch_yfinance_data(config.BONDS, "bonds")
+        self.fetch_yfinance_data(config.MAG7_STOCKS, "mag7")
         self.fetch_yfinance_data(config.US_SECTOR_ETFS, "us_sectors")
         self.fetch_yfinance_data(config.GLOBAL_INDICES, "global_indices")
         self.fetch_yfinance_data(config.CURRENCIES, "currencies")
@@ -55,6 +61,8 @@ class DataFetcher:
                 "bitcoin": "BTC",
                 "ethereum": "ETH",
                 "ripple": "XRP",
+                "solana": "SOL",
+                "cardano": "ADA",
                 "dogecoin": "DOGE",
                 "chainlink": "LINK"
             }

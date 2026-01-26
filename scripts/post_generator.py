@@ -42,51 +42,79 @@ author: 이찬희
 
 """
 
+        # VIX 값 가져오기
+        vix_data = data.get('market_indicators', {}).get('VIX (공포지수)', {})
+        vix_value = vix_data.get('price', '-')
+        vix_change = vix_data.get('change', 0)
+        vix_status = "안정" if vix_value != '-' and vix_value < 20 else "주의" if vix_value != '-' and vix_value < 30 else "공포"
+
         body = f"""
 > {now.strftime('%Y년 %m월 %d일')} ({weekday_kr}) 오전 6:00 기준
 
-## 오늘의 핵심
+---
+
+## 📋 오늘의 핵심
 
 {summary}
 
 ---
 
-## 미국 증시
+## 📊 시장 심리 지표
+
+| 지표 | 값 | 변동 | 상태 |
+|------|-----|------|------|
+| VIX (공포지수) | {vix_value} | {vix_change:+.2f}% | {vix_status} |
+
+{self._format_table(data.get('bonds', {}), ['채권', '금리(%)', '변동'])}
+
+---
+
+## 🇺🇸 미국 증시
 
 ### 주요 지수
 {self._format_table(data.get('us_indices', {}), ['지수', '종가', '변동'])}
+
+### 빅테크 (MAG7)
+{self._format_table(data.get('mag7', {}), ['종목', '주가($)', '변동'])}
 
 ### 섹터 ETF
 {self._format_table(data.get('us_sectors', {}), ['섹터', '종가', '변동'])}
 
 ---
 
-## 글로벌 지수
-{self._format_table(data.get('global_indices', {}), ['지수', '종가', '변동'])}
+## 🌏 글로벌 증시
+
+### 아시아
+{self._format_filtered_table(data.get('global_indices', {}), ['KOSPI', 'KOSDAQ', '니케이225', '항셍', '상해종합'], ['지수', '종가', '변동'])}
+
+### 유럽
+{self._format_filtered_table(data.get('global_indices', {}), ['DAX', 'FTSE 100'], ['지수', '종가', '변동'])}
 
 ---
 
-## 암호화폐
+## 🪙 암호화폐
+
 {self._format_crypto_table(data.get('crypto', {}))}
 
 ---
 
-## 환율
+## 💱 외환
+
 {self._format_table(data.get('currencies', {}), ['통화쌍', '환율', '변동'])}
 
 ---
 
-## 원자재
+## 🛢️ 원자재
+
+### 에너지 & 금속
 {self._format_table(data.get('commodities', {}), ['품목', '가격', '변동'])}
 
----
-
-## 농산물
+### 농산물
 {self._format_table(data.get('agriculture', {}), ['품목', '가격', '변동'])}
 
 ---
 
-*작성일 {now.strftime('%Y.%m.%d')} | 이찬희*
+*{now.strftime('%Y.%m.%d')} | 찬희의 투자노트*
 """
 
         return front_matter + body
@@ -110,22 +138,29 @@ author: 이찬희
 
         return "\n".join(lines)
 
+    def _format_filtered_table(self, data: Dict, keys: list, headers: list) -> str:
+        """특정 키만 필터링하여 테이블 생성"""
+        filtered = {k: v for k, v in data.items() if k in keys}
+        return self._format_table(filtered, headers)
+
     def _format_crypto_table(self, data: Dict) -> str:
         """암호화폐 테이블 포맷팅"""
         if not data:
             return "_데이터 없음_"
 
         lines = [
-            "| 코인 | 가격 (USD) | 24h 변동 |",
-            "|------|-----------|---------|"
+            "| 코인 | 가격 (USD) | 가격 (KRW) | 24h 변동 |",
+            "|------|-----------|-----------|---------|"
         ]
 
         for name, info in data.items():
-            price = info.get('price_usd')
+            price_usd = info.get('price_usd')
+            price_krw = info.get('price_krw')
             change = info.get('change_24h')
-            if price is not None:
+            if price_usd is not None:
                 change_str = f"{change:+.2f}%" if change is not None else "-"
-                lines.append(f"| {name} | ${price:,.2f} | {change_str} |")
+                krw_str = f"₩{price_krw:,.0f}" if price_krw else "-"
+                lines.append(f"| {name} | ${price_usd:,.2f} | {krw_str} | {change_str} |")
 
         return "\n".join(lines)
 

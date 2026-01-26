@@ -31,14 +31,37 @@ class Config:
     CURRENCIES: Dict[str, str] = field(default_factory=dict)
     COMMODITIES: Dict[str, str] = field(default_factory=dict)
     AGRICULTURE: Dict[str, str] = field(default_factory=dict)
+    MARKET_INDICATORS: Dict[str, str] = field(default_factory=dict)
+    BONDS: Dict[str, str] = field(default_factory=dict)
+    MAG7_STOCKS: Dict[str, str] = field(default_factory=dict)
 
     def __post_init__(self):
-        self.CRYPTO_IDS = ["bitcoin", "ethereum", "ripple", "dogecoin", "chainlink"]
+        self.CRYPTO_IDS = ["bitcoin", "ethereum", "ripple", "solana", "cardano", "dogecoin", "chainlink"]
 
         self.US_INDICES = {
             "S&P 500": "^GSPC",
             "NASDAQ": "^IXIC",
-            "DOW": "^DJI"
+            "다우존스": "^DJI",
+            "러셀 2000": "^RUT"
+        }
+
+        self.MARKET_INDICATORS = {
+            "VIX (공포지수)": "^VIX"
+        }
+
+        self.BONDS = {
+            "미국 10년물": "^TNX",
+            "미국 2년물": "^IRX"
+        }
+
+        self.MAG7_STOCKS = {
+            "애플": "AAPL",
+            "마이크로소프트": "MSFT",
+            "엔비디아": "NVDA",
+            "아마존": "AMZN",
+            "알파벳": "GOOGL",
+            "메타": "META",
+            "테슬라": "TSLA"
         }
 
         self.US_SECTOR_ETFS = {
