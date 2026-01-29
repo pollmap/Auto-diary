@@ -19,10 +19,10 @@ layout: default
     {% if page.downloadable != false %}
     <div class="post-actions">
       <button class="download-btn" onclick="downloadAsMarkdown()" title="마크다운으로 다운로드">
-        📥 MD
+        📥 마크다운
       </button>
       <button class="download-btn" onclick="printPost()" title="PDF로 인쇄/저장">
-        🖨️ PDF
+        🖨️ PDF 저장
       </button>
       <button class="download-btn" onclick="copyToClipboard()" title="클립보드에 복사">
         📋 복사
@@ -46,6 +46,9 @@ layout: default
 
   <a class="u-url" href="{{ page.url | relative_url }}" hidden></a>
 </article>
+
+<!-- 상승/하락 색상 자동 적용 -->
+<script src="{{ '/assets/js/market-colors.js' | relative_url }}"></script>
 
 {% if page.downloadable != false %}
 <script>
@@ -77,53 +80,37 @@ function printPost() {
 function copyToClipboard() {
   const content = document.getElementById('post-content').innerText;
   navigator.clipboard.writeText(content).then(() => {
-    alert('내용이 클립보드에 복사되었습니다!');
+    showToast('클립보드에 복사되었습니다!');
   }).catch(err => {
     console.error('복사 실패:', err);
-    alert('복사에 실패했습니다.');
+    showToast('복사에 실패했습니다.', true);
   });
 }
+
+// 토스트 메시지
+function showToast(message, isError = false) {
+  const toast = document.createElement('div');
+  toast.textContent = message;
+  toast.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 24px;
+    background: ${isError ? '#d63031' : '#00b894'};
+    color: white;
+    border-radius: 8px;
+    font-weight: 500;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+  `;
+  document.body.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transition = 'opacity 0.3s';
+    setTimeout(() => toast.remove(), 300);
+  }, 2000);
+}
 </script>
-
-<style>
-.post-actions {
-  margin-top: 1rem;
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.download-btn {
-  background: #f5f5f5;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: all 0.2s;
-}
-
-.download-btn:hover {
-  background: #e0e0e0;
-  border-color: #ccc;
-}
-
-@media print {
-  .post-actions,
-  .site-header,
-  .site-footer,
-  .post-tags {
-    display: none !important;
-  }
-
-  .post-content {
-    font-size: 12pt;
-    line-height: 1.6;
-  }
-
-  @page {
-    margin: 2cm;
-  }
-}
-</style>
 {% endif %}
