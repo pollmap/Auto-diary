@@ -131,13 +131,15 @@ author: 이찬희
         return front_matter + body
 
     def _format_table(self, data: Dict, headers: list) -> str:
-        """일반 테이블 포맷팅"""
+        """일반 테이블 포맷팅 (kramdown 호환)"""
         if not data:
-            return "_데이터 없음_"
+            return "\n_데이터 없음_\n"
 
+        # kramdown은 테이블 앞뒤에 빈 줄이 필요함
         lines = [
+            "",  # 테이블 앞 빈 줄 (중요!)
             f"| {headers[0]} | {headers[1]} | {headers[2]} |",
-            "|------|------|------|"
+            "|:------|------:|------:|"  # 정렬: 첫 열 왼쪽, 나머지 오른쪽
         ]
 
         for name, info in data.items():
@@ -147,6 +149,7 @@ author: 이찬희
                 change_str = f"{change:+.2f}%" if change is not None else "-"
                 lines.append(f"| {name} | {price:,.2f} | {change_str} |")
 
+        lines.append("")  # 테이블 뒤 빈 줄
         return "\n".join(lines)
 
     def _format_filtered_table(self, data: Dict, keys: list, headers: list) -> str:
@@ -155,13 +158,14 @@ author: 이찬희
         return self._format_table(filtered, headers)
 
     def _format_crypto_table(self, data: Dict) -> str:
-        """암호화폐 테이블 포맷팅"""
+        """암호화폐 테이블 포맷팅 (kramdown 호환)"""
         if not data:
-            return "_데이터 없음_"
+            return "\n_데이터 없음_\n"
 
         lines = [
+            "",  # 테이블 앞 빈 줄
             "| 코인 | 가격 (USD) | 가격 (KRW) | 24h 변동 |",
-            "|------|-----------|-----------|---------|"
+            "|:------|------:|------:|------:|"
         ]
 
         for name, info in data.items():
@@ -173,6 +177,7 @@ author: 이찬희
                 krw_str = f"₩{price_krw:,.0f}" if price_krw else "-"
                 lines.append(f"| {name} | ${price_usd:,.2f} | {krw_str} | {change_str} |")
 
+        lines.append("")  # 테이블 뒤 빈 줄
         return "\n".join(lines)
 
     def _format_fear_greed(self, data: Dict) -> str:
@@ -204,7 +209,7 @@ author: 이찬희
         return "\n".join(lines) if lines else ""
 
     def _format_economic_indicators(self, data: Dict) -> str:
-        """경제지표 포맷팅"""
+        """경제지표 포맷팅 (kramdown 호환)"""
         if not data:
             return ""
 
@@ -214,8 +219,9 @@ author: 이찬희
         daily = data.get("daily", {})
         if daily:
             lines.append("**금리 동향**")
+            lines.append("")  # 테이블 앞 빈 줄
             lines.append("| 지표 | 값 | 변동 | 기준일 |")
-            lines.append("|------|-----|------|--------|")
+            lines.append("|:------|------:|------:|:--------|")
             for name, info in daily.items():
                 if info and info.get("value") is not None:
                     change_str = f"{info['change']:+.2f}%" if info.get('change') is not None else "-"
@@ -226,8 +232,9 @@ author: 이찬희
         weekly = data.get("weekly", {})
         if weekly:
             lines.append("**고용 동향**")
+            lines.append("")  # 테이블 앞 빈 줄
             lines.append("| 지표 | 값 | 변동 | 기준일 |")
-            lines.append("|------|-----|------|--------|")
+            lines.append("|:------|------:|------:|:--------|")
             for name, info in weekly.items():
                 if info and info.get("value") is not None:
                     val = info['value']
@@ -239,8 +246,9 @@ author: 이찬희
         monthly = data.get("monthly", {})
         if monthly:
             lines.append("**주요 경제지표 (최신)**")
+            lines.append("")  # 테이블 앞 빈 줄
             lines.append("| 지표 | 값 | 기준일 |")
-            lines.append("|------|-----|--------|")
+            lines.append("|:------|------:|:--------|")
             for name, info in monthly.items():
                 if info and info.get("value") is not None:
                     val = info['value']
