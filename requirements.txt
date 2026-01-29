@@ -1,8 +1,22 @@
-yfinance>=0.2.36
-requests>=2.31.0
-pandas>=2.0.0
-google-genai>=1.0.0
-python-telegram-bot>=20.0
-pyyaml>=6.0
-python-dotenv>=1.0.0
-fredapi>=0.5.1
+# Auto-diary 의존성 (버전 고정)
+# 2026-01-29 기준 안정 버전
+
+# 금융 데이터
+yfinance==0.2.51
+pandas==2.2.3
+
+# HTTP 요청
+requests==2.32.3
+
+# AI (선택적)
+google-genai==1.5.0
+
+# 텔레그램 봇
+python-telegram-bot==21.9
+
+# 설정 관리
+pyyaml==6.0.2
+python-dotenv==1.0.1
+
+# 경제지표 (FRED)
+fredapi==0.5.2

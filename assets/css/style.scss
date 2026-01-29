@@ -3,12 +3,14 @@
 
 @import "minima";
 
-// Custom styles for 이찬희의 디지털 두뇌
+// Custom styles for 찬희의 투자노트
 
 // Color variables
 $primary-color: #2c3e50;
 $secondary-color: #3498db;
 $accent-color: #e74c3c;
+$success-color: #27ae60;
+$danger-color: #e74c3c;
 $text-color: #333;
 $light-bg: #f8f9fa;
 
@@ -110,6 +112,18 @@ blockquote {
   }
 }
 
+// Category badges
+.category, .post-categories .category {
+  display: inline-block;
+  background-color: $secondary-color;
+  color: white;
+  padding: 0.2em 0.6em;
+  margin: 0.1em;
+  border-radius: 3px;
+  font-size: 0.75em;
+  font-weight: 500;
+}
+
 // Market briefing specific
 .market-briefing {
   h2 {
@@ -122,6 +136,31 @@ blockquote {
   h3 {
     color: #555;
     margin-top: 1.5em;
+  }
+}
+
+// Price change colors (in table cells)
+.price-up, .change-positive {
+  color: $success-color;
+  font-weight: 500;
+}
+
+.price-down, .change-negative {
+  color: $danger-color;
+  font-weight: 500;
+}
+
+// Home page
+.home {
+  .page-heading {
+    font-size: 2em;
+    margin-bottom: 0.25em;
+  }
+
+  .site-description {
+    color: #666;
+    font-size: 1.1em;
+    margin-bottom: 1.5em;
   }
 }
 
@@ -147,11 +186,15 @@ blockquote {
 // Responsive adjustments
 @media screen and (max-width: 600px) {
   table {
-    font-size: 0.85em;
+    font-size: 0.8em;
 
     th, td {
-      padding: 0.5em;
+      padding: 0.4em 0.5em;
     }
+  }
+
+  .home .page-heading {
+    font-size: 1.5em;
   }
 }
 
@@ -175,4 +218,16 @@ blockquote {
       color: $secondary-color;
     }
   }
+}
+
+// Section dividers
+hr {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 2em 0;
+}
+
+// Emoji sizing
+.emoji {
+  font-size: 1.1em;
 }
