@@ -1,6 +1,10 @@
 """메인 실행 스크립트"""
 import sys
 from datetime import datetime
+from pathlib import Path
+
+from config import config
+from logger import logger, LogContext
 from data_fetcher import DataFetcher
 from post_generator import PostGenerator
 from telegram_notifier import TelegramNotifier
@@ -29,16 +33,32 @@ def generate_simple_summary(data: dict) -> str:
         sp500 = us.get("S&P 500", {})
         nasdaq = us.get("NASDAQ", {})
         dow = us.get("다우존스", {})
-        if sp500.get("change") is not None:
-            direction = "상승" if sp500["change"] > 0 else "하락"
-            lines.append(f"미국 증시는 S&P500 {sp500['change']:+.2f}%, 나스닥 {nasdaq.get('change', 0):+.2f}%, 다우 {dow.get('change', 0):+.2f}%로 {direction} 마감.")
+        sp_chg = sp500.get("change")
+        nas_chg = nasdaq.get("change")
+        dow_chg = dow.get("change")
+
+        if sp_chg is not None:
+            # 상승/하락/혼조 판단: 모든 지수 고려
+            changes = [c for c in [sp_chg, nas_chg, dow_chg] if c is not None]
+            up_count = sum(1 for c in changes if c > 0)
+            down_count = sum(1 for c in changes if c < 0)
+
+            if up_count == len(changes):
+                direction = "상승"
+            elif down_count == len(changes):
+                direction = "하락"
+            else:
+                direction = "혼조"
+
+            lines.append(f"미국 증시는 S&P 500 {sp_chg:+.2f}%, 나스닥 {nas_chg or 0:+.2f}%, 다우 {dow_chg or 0:+.2f}%로 {direction} 마감.")
 
     # 빅테크 요약
     mag7 = data.get("mag7", {})
     if mag7:
-        best = max(mag7.items(), key=lambda x: x[1].get('change', -999) if x[1].get('change') is not None else -999)
-        worst = min(mag7.items(), key=lambda x: x[1].get('change', 999) if x[1].get('change') is not None else 999)
-        if best[1].get('change') is not None and worst[1].get('change') is not None:
+        valid_items = [(k, v) for k, v in mag7.items() if v.get('change') is not None]
+        if valid_items:
+            best = max(valid_items, key=lambda x: x[1]['change'])
+            worst = min(valid_items, key=lambda x: x[1]['change'])
             lines.append(f"빅테크 중 {best[0]}({best[1]['change']:+.2f}%) 강세, {worst[0]}({worst[1]['change']:+.2f}%) 약세.")
 
     # 암호화폐 요약
@@ -84,39 +104,40 @@ def generate_simple_summary(data: dict) -> str:
 
 def main():
     """시황 브리핑 자동 생성 메인 함수"""
-    print(f"[{datetime.now()}] 시황 브리핑 생성 시작...")
+    with LogContext("시황 브리핑 생성"):
+        # API 키 검증 결과 출력
+        logger.info(config.get_validation_summary())
 
-    # 1. 데이터 수집
-    print("1. 데이터 수집 중...")
-    fetcher = DataFetcher()
-    market_data = fetcher.fetch_all()
-    print(f"   - 수집 완료: {len(market_data)} 카테고리")
+        # 1. 데이터 수집
+        logger.info("1. 데이터 수집 시작...")
+        fetcher = DataFetcher()
+        market_data = fetcher.fetch_all()
+        logger.info(f"   데이터 수집 완료: {len(market_data)} 카테고리")
 
-    # 2. 간단 요약 생성 (AI 없이)
-    print("2. 요약 생성 중...")
-    summary = generate_simple_summary(market_data)
-    print(f"   - 요약 생성 완료: {len(summary)}자")
+        # 2. 간단 요약 생성 (AI 없이)
+        logger.info("2. 요약 생성 중...")
+        summary = generate_simple_summary(market_data)
+        logger.info(f"   요약 생성 완료: {len(summary)}자")
 
-    # 3. 포스트 생성
-    print("3. 마크다운 포스트 생성 중...")
-    generator = PostGenerator()
-    post_path = generator.generate_briefing_post(market_data, summary)
-    print(f"   - 포스트 생성: {post_path}")
+        # 3. 포스트 생성
+        logger.info("3. 마크다운 포스트 생성 중...")
+        generator = PostGenerator()
+        post_path = generator.generate_briefing_post(market_data, summary)
+        logger.info(f"   포스트 생성: {post_path}")
 
-    # 4. 텔레그램 알림
-    print("4. 텔레그램 알림 발송 중...")
-    # GitHub Pages URL 구성
-    date_str = datetime.now().strftime("%Y/%m/%d")
-    post_url = f"https://pollmap.github.io/Auto-diary/market/briefing/{date_str}/daily-market-briefing"
+        # 4. 텔레그램 알림
+        logger.info("4. 텔레그램 알림 발송 중...")
+        date_str = datetime.now().strftime("%Y/%m/%d")
+        post_url = f"{config.SITE_URL}/market/briefing/{date_str}/daily-market-briefing"
 
-    notifier = TelegramNotifier()
-    result = notifier.send_sync(market_data, post_url)
-    if result:
-        print("   - 알림 발송 완료")
-    else:
-        print("   - 알림 발송 실패 (계속 진행)")
+        notifier = TelegramNotifier()
+        result = notifier.send_sync(market_data, post_url)
+        if result:
+            logger.info("   알림 발송 완료")
+        else:
+            logger.warning("   알림 발송 실패 또는 건너뜀")
 
-    print(f"[{datetime.now()}] 시황 브리핑 생성 완료!")
+    logger.info("시황 브리핑 생성 완료!")
     return 0
 
 

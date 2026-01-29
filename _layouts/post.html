@@ -14,9 +14,24 @@ layout: default
           </span>
       {% endif %}
     </p>
+
+    <!-- 다운로드 버튼 -->
+    {% if page.downloadable != false %}
+    <div class="post-actions">
+      <button class="download-btn" onclick="downloadAsMarkdown()" title="마크다운으로 다운로드">
+        📥 MD
+      </button>
+      <button class="download-btn" onclick="printPost()" title="PDF로 인쇄/저장">
+        🖨️ PDF
+      </button>
+      <button class="download-btn" onclick="copyToClipboard()" title="클립보드에 복사">
+        📋 복사
+      </button>
+    </div>
+    {% endif %}
   </header>
 
-  <div class="post-content e-content" itemprop="articleBody">
+  <div class="post-content e-content" itemprop="articleBody" id="post-content">
     {{ content }}
   </div>
 
@@ -31,3 +46,84 @@ layout: default
 
   <a class="u-url" href="{{ page.url | relative_url }}" hidden></a>
 </article>
+
+{% if page.downloadable != false %}
+<script>
+// 마크다운 다운로드
+function downloadAsMarkdown() {
+  const title = "{{ page.title | escape }}";
+  const date = "{{ page.date | date: '%Y-%m-%d' }}";
+  const content = document.getElementById('post-content').innerText;
+
+  const markdown = `# ${title}\n\n*${date}*\n\n${content}`;
+
+  const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${date}-${title.replace(/[^a-zA-Z0-9가-힣]/g, '-')}.md`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// PDF 인쇄 (브라우저 인쇄 대화상자)
+function printPost() {
+  window.print();
+}
+
+// 클립보드 복사
+function copyToClipboard() {
+  const content = document.getElementById('post-content').innerText;
+  navigator.clipboard.writeText(content).then(() => {
+    alert('내용이 클립보드에 복사되었습니다!');
+  }).catch(err => {
+    console.error('복사 실패:', err);
+    alert('복사에 실패했습니다.');
+  });
+}
+</script>
+
+<style>
+.post-actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.download-btn {
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.download-btn:hover {
+  background: #e0e0e0;
+  border-color: #ccc;
+}
+
+@media print {
+  .post-actions,
+  .site-header,
+  .site-footer,
+  .post-tags {
+    display: none !important;
+  }
+
+  .post-content {
+    font-size: 12pt;
+    line-height: 1.6;
+  }
+
+  @page {
+    margin: 2cm;
+  }
+}
+</style>
+{% endif %}

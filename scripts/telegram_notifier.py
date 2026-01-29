@@ -3,16 +3,19 @@ import asyncio
 from datetime import datetime
 from telegram import Bot
 from config import config
+from logger import logger, LogContext
 
 
 class TelegramNotifier:
     """텔레그램 봇 알림 클라이언트"""
 
-    MAX_MESSAGE_LENGTH = 4000  # 텔레그램 제한 4096보다 여유있게
-
     def __init__(self):
-        self.bot = Bot(token=config.TELEGRAM_BOT_TOKEN)
+        if not config.validate_telegram():
+            logger.warning("텔레그램 설정이 유효하지 않습니다")
+        self.bot = Bot(token=config.TELEGRAM_BOT_TOKEN) if config.TELEGRAM_BOT_TOKEN else None
         self.chat_id = config.TELEGRAM_CHAT_ID
+        self.max_message_length = config.TELEGRAM_MAX_MESSAGE_LENGTH
+        self.message_delay = config.TELEGRAM_MESSAGE_DELAY
 
     def _format_change(self, val):
         """변동률 포맷팅"""
@@ -75,7 +78,8 @@ class TelegramNotifier:
         us = data.get("us_indices", {})
         for name, info in us.items():
             if info.get("price"):
-                emoji = "🔺" if info.get('change', 0) > 0 else "🔻" if info.get('change', 0) < 0 else "▪️"
+                change_val = info.get('change', 0) or 0
+                emoji = "🔺" if change_val > 0 else "🔻" if change_val < 0 else "▪️"
                 msg1.append(f"{emoji} {name}: {info['price']:,.2f} ({self._format_change(info.get('change'))})")
 
         messages.append("\n".join(msg1))
@@ -86,9 +90,15 @@ class TelegramNotifier:
         msg2.append("")
         mag7 = data.get("mag7", {})
         mag7_items = [(k, v) for k, v in mag7.items() if v.get('price') is not None]
-        mag7_sorted = sorted(mag7_items, key=lambda x: x[1].get('change', 0) or 0, reverse=True)
+        # 정렬 시 None 처리 개선
+        mag7_sorted = sorted(
+            mag7_items,
+            key=lambda x: x[1].get('change') if x[1].get('change') is not None else 0,
+            reverse=True
+        )
         for name, info in mag7_sorted:
-            emoji = "🔺" if info.get('change', 0) > 0 else "🔻" if info.get('change', 0) < 0 else "▪️"
+            change_val = info.get('change', 0) or 0
+            emoji = "🔺" if change_val > 0 else "🔻" if change_val < 0 else "▪️"
             msg2.append(f"{emoji} {name}: ${info['price']:,.2f} ({self._format_change(info.get('change'))})")
 
         msg2.append("")
@@ -100,9 +110,14 @@ class TelegramNotifier:
         msg2.append("")
         sectors = data.get("us_sectors", {})
         sector_items = [(k, v) for k, v in sectors.items() if v.get('price') is not None]
-        sector_sorted = sorted(sector_items, key=lambda x: x[1].get('change', 0) or 0, reverse=True)
+        sector_sorted = sorted(
+            sector_items,
+            key=lambda x: x[1].get('change') if x[1].get('change') is not None else 0,
+            reverse=True
+        )
         for name, info in sector_sorted:
-            emoji = "🔺" if info.get('change', 0) > 0 else "🔻" if info.get('change', 0) < 0 else "▪️"
+            change_val = info.get('change', 0) or 0
+            emoji = "🔺" if change_val > 0 else "🔻" if change_val < 0 else "▪️"
             msg2.append(f"{emoji} {name}: ${info['price']:,.2f} ({self._format_change(info.get('change'))})")
 
         messages.append("\n".join(msg2))
@@ -119,7 +134,8 @@ class TelegramNotifier:
         for name in asia_keys:
             info = global_idx.get(name, {})
             if info.get("price"):
-                emoji = "🔺" if info.get('change', 0) > 0 else "🔻" if info.get('change', 0) < 0 else "▪️"
+                change_val = info.get('change', 0) or 0
+                emoji = "🔺" if change_val > 0 else "🔻" if change_val < 0 else "▪️"
                 msg3.append(f"{emoji} {name}: {info['price']:,.2f} ({self._format_change(info.get('change'))})")
 
         # 유럽
@@ -129,7 +145,8 @@ class TelegramNotifier:
         for name in europe_keys:
             info = global_idx.get(name, {})
             if info.get("price"):
-                emoji = "🔺" if info.get('change', 0) > 0 else "🔻" if info.get('change', 0) < 0 else "▪️"
+                change_val = info.get('change', 0) or 0
+                emoji = "🔺" if change_val > 0 else "🔻" if change_val < 0 else "▪️"
                 msg3.append(f"{emoji} {name}: {info['price']:,.2f} ({self._format_change(info.get('change'))})")
 
         msg3.append("")
@@ -142,7 +159,8 @@ class TelegramNotifier:
         crypto = data.get("crypto", {})
         for name, info in crypto.items():
             if info.get("price_usd"):
-                emoji = "🔺" if info.get('change_24h', 0) > 0 else "🔻" if info.get('change_24h', 0) < 0 else "▪️"
+                change_val = info.get('change_24h', 0) or 0
+                emoji = "🔺" if change_val > 0 else "🔻" if change_val < 0 else "▪️"
                 krw = f"₩{info['price_krw']:,.0f}" if info.get('price_krw') else ""
                 msg3.append(f"{emoji} {name}: ${info['price_usd']:,.2f} {krw} ({self._format_change(info.get('change_24h'))})")
 
@@ -155,7 +173,8 @@ class TelegramNotifier:
         currencies = data.get("currencies", {})
         for name, info in currencies.items():
             if info.get("price"):
-                emoji = "🔺" if info.get('change', 0) > 0 else "🔻" if info.get('change', 0) < 0 else "▪️"
+                change_val = info.get('change', 0) or 0
+                emoji = "🔺" if change_val > 0 else "🔻" if change_val < 0 else "▪️"
                 msg4.append(f"{emoji} {name}: {info['price']:,.2f} ({self._format_change(info.get('change'))})")
 
         msg4.append("")
@@ -168,7 +187,8 @@ class TelegramNotifier:
         commodities = data.get("commodities", {})
         for name, info in commodities.items():
             if info.get("price"):
-                emoji = "🔺" if info.get('change', 0) > 0 else "🔻" if info.get('change', 0) < 0 else "▪️"
+                change_val = info.get('change', 0) or 0
+                emoji = "🔺" if change_val > 0 else "🔻" if change_val < 0 else "▪️"
                 msg4.append(f"{emoji} {name}: ${info['price']:,.2f} ({self._format_change(info.get('change'))})")
 
         # 농산물
@@ -178,7 +198,8 @@ class TelegramNotifier:
             msg4.append("_농산물_")
             for name, info in agriculture.items():
                 if info.get("price"):
-                    emoji = "🔺" if info.get('change', 0) > 0 else "🔻" if info.get('change', 0) < 0 else "▪️"
+                    change_val = info.get('change', 0) or 0
+                    emoji = "🔺" if change_val > 0 else "🔻" if change_val < 0 else "▪️"
                     msg4.append(f"{emoji} {name}: ${info['price']:,.2f} ({self._format_change(info.get('change'))})")
 
         messages.append("\n".join(msg4))
@@ -241,30 +262,39 @@ class TelegramNotifier:
 
     async def send_full_briefing(self, data: dict, post_url: str) -> bool:
         """전체 시황 브리핑 발송 (여러 메시지)"""
+        if not self.bot:
+            logger.error("텔레그램 봇이 초기화되지 않았습니다")
+            return False
+
         messages = self._build_full_briefing(data, post_url)
 
         try:
-            for i, msg in enumerate(messages):
-                await self.bot.send_message(
-                    chat_id=self.chat_id,
-                    text=msg,
-                    parse_mode='Markdown',
-                    disable_web_page_preview=True
-                )
-                # 메시지 사이 약간의 딜레이
-                if i < len(messages) - 1:
-                    await asyncio.sleep(0.5)
+            with LogContext("텔레그램 메시지 발송"):
+                for i, msg in enumerate(messages):
+                    await self.bot.send_message(
+                        chat_id=self.chat_id,
+                        text=msg,
+                        parse_mode='Markdown',
+                        disable_web_page_preview=True
+                    )
+                    logger.info(f"메시지 {i + 1}/{len(messages)} 발송 완료")
+                    # 메시지 사이 약간의 딜레이
+                    if i < len(messages) - 1:
+                        await asyncio.sleep(self.message_delay)
             return True
         except Exception as e:
-            print(f"Telegram error: {e}")
+            logger.error(f"텔레그램 발송 오류: {e}")
             return False
 
     def send_sync(self, data: dict, post_url: str) -> bool:
         """동기 방식 발송 (GitHub Actions용)"""
+        if not config.validate_telegram():
+            logger.warning("텔레그램 설정이 없어 알림을 건너뜁니다")
+            return False
         return asyncio.run(self.send_full_briefing(data, post_url))
 
 
 if __name__ == "__main__":
     # 테스트용
     notifier = TelegramNotifier()
-    print(f"Bot configured with chat_id: {config.TELEGRAM_CHAT_ID}")
+    logger.info(f"Bot configured with chat_id: {config.TELEGRAM_CHAT_ID}")
