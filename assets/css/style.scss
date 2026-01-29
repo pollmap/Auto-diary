@@ -3,231 +3,474 @@
 
 @import "minima";
 
-// Custom styles for 찬희의 투자노트
+// ========================================
+// 찬희의 투자노트 - 커스텀 스타일
+// ========================================
 
 // Color variables
-$primary-color: #2c3e50;
-$secondary-color: #3498db;
-$accent-color: #e74c3c;
-$success-color: #27ae60;
-$danger-color: #e74c3c;
-$text-color: #333;
+$primary-color: #1a1a2e;
+$secondary-color: #16213e;
+$accent-color: #0f3460;
+$highlight-color: #e94560;
+$success-color: #00b894;
+$danger-color: #d63031;
+$warning-color: #fdcb6e;
+$text-color: #2d3436;
+$text-light: #636e72;
 $light-bg: #f8f9fa;
+$card-bg: #ffffff;
+$border-color: #e9ecef;
 
 // Base styles
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  color: $text-color;
-  line-height: 1.7;
+* {
+  box-sizing: border-box;
 }
 
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", "Helvetica Neue", Arial, sans-serif;
+  color: $text-color;
+  line-height: 1.7;
+  background-color: #f5f6fa;
+}
+
+// ========================================
 // Header
+// ========================================
 .site-header {
-  border-bottom: 2px solid $primary-color;
+  background: linear-gradient(135deg, $primary-color 0%, $secondary-color 100%);
+  border-bottom: none;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+
+  .wrapper {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
 }
 
 .site-title {
   font-weight: 700;
-  color: $primary-color;
+  color: white !important;
+  font-size: 1.5rem;
 
   &:hover {
-    color: $secondary-color;
+    color: $highlight-color !important;
+    text-decoration: none;
   }
 }
 
-// Navigation
 .site-nav {
   .page-link {
-    color: $primary-color;
+    color: rgba(255,255,255,0.9);
     font-weight: 500;
 
     &:hover {
-      color: $secondary-color;
+      color: $highlight-color;
     }
+  }
+
+  @media screen and (max-width: 600px) {
+    background-color: $primary-color;
+    border-color: $secondary-color;
   }
 }
 
-// Posts
+// ========================================
+// Main Content
+// ========================================
+.page-content {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+// ========================================
+// Post Styles
+// ========================================
+.post {
+  background: $card-bg;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.post-header {
+  border-bottom: 2px solid $border-color;
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+
 .post-title {
   color: $primary-color;
-  font-weight: 700;
+  font-weight: 800;
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
 }
 
 .post-meta {
-  color: #666;
-  font-size: 0.9em;
+  color: $text-light;
+  font-size: 0.95rem;
 }
 
-// Tables (for market briefing)
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 1.5em 0;
-  font-size: 0.95em;
-
-  th, td {
-    padding: 0.75em 1em;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-  }
-
-  th {
-    background-color: $light-bg;
-    font-weight: 600;
-    color: $primary-color;
-  }
-
-  tr:hover {
-    background-color: rgba($secondary-color, 0.05);
-  }
+// ========================================
+// Download Buttons
+// ========================================
+.post-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
-// Blockquotes
-blockquote {
-  border-left: 4px solid $secondary-color;
-  background-color: $light-bg;
-  padding: 1em 1.5em;
-  margin: 1.5em 0;
-  font-style: normal;
-
-  p {
-    margin: 0;
-  }
-}
-
-// Tags
-.post-tags {
-  margin-top: 2em;
-  padding-top: 1em;
-  border-top: 1px solid #eee;
-
-  .tag {
-    display: inline-block;
-    background-color: $light-bg;
-    color: $primary-color;
-    padding: 0.25em 0.75em;
-    margin: 0.25em;
-    border-radius: 3px;
-    font-size: 0.85em;
-  }
-}
-
-// Category badges
-.category, .post-categories .category {
-  display: inline-block;
-  background-color: $secondary-color;
+.download-btn {
+  background: linear-gradient(135deg, $accent-color 0%, $secondary-color 100%);
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
   color: white;
-  padding: 0.2em 0.6em;
-  margin: 0.1em;
-  border-radius: 3px;
-  font-size: 0.75em;
-  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    background: linear-gradient(135deg, $highlight-color 0%, $accent-color 100%);
+  }
 }
 
-// Market briefing specific
-.market-briefing {
+// ========================================
+// Section Headers
+// ========================================
+.post-content {
   h2 {
     color: $primary-color;
-    border-bottom: 2px solid $secondary-color;
-    padding-bottom: 0.5em;
-    margin-top: 2em;
+    font-weight: 700;
+    font-size: 1.4rem;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 3px solid $highlight-color;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   h3 {
-    color: #555;
-    margin-top: 1.5em;
+    color: $secondary-color;
+    font-weight: 600;
+    font-size: 1.15rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
   }
 }
 
-// Price change colors (in table cells)
-.price-up, .change-positive {
-  color: $success-color;
+// ========================================
+// Tables - 핵심 스타일!
+// ========================================
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 1rem 0 1.5rem 0;
+  font-size: 0.95rem;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+thead {
+  background: linear-gradient(135deg, $primary-color 0%, $secondary-color 100%);
+}
+
+th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: white;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid $border-color;
+  background: white;
+}
+
+tbody tr {
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: rgba($accent-color, 0.05);
+    transform: scale(1.01);
+  }
+
+  &:last-child td {
+    border-bottom: none;
+  }
+}
+
+// 숫자 컬럼 오른쪽 정렬
+td:nth-child(2),
+td:nth-child(3),
+td:nth-child(4) {
+  text-align: right;
+  font-family: "SF Mono", "Monaco", "Consolas", monospace;
   font-weight: 500;
 }
 
-.price-down, .change-negative {
-  color: $danger-color;
-  font-weight: 500;
+// ========================================
+// 상승/하락 색상 (자동 적용)
+// ========================================
+td:last-child {
+  font-weight: 600;
 }
 
-// Home page
+// ========================================
+// Blockquotes (날짜 표시)
+// ========================================
+blockquote {
+  background: linear-gradient(135deg, $primary-color 0%, $accent-color 100%);
+  border-left: none;
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  margin: 0 0 1.5rem 0;
+  color: white;
+  font-weight: 500;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+
+  p {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+}
+
+// ========================================
+// 핵심 요약 박스
+// ========================================
+.post-content > p:first-of-type {
+  background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+  border-left: 4px solid $warning-color;
+  padding: 1.25rem;
+  border-radius: 0 10px 10px 0;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+}
+
+// ========================================
+// Horizontal Rules
+// ========================================
+hr {
+  border: none;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, $border-color, transparent);
+  margin: 2rem 0;
+}
+
+// ========================================
+// Tags
+// ========================================
+.post-tags {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid $border-color;
+
+  strong {
+    color: $text-light;
+    margin-right: 0.5rem;
+  }
+
+  .tag {
+    display: inline-block;
+    background: linear-gradient(135deg, $accent-color 0%, $secondary-color 100%);
+    color: white;
+    padding: 0.35rem 0.9rem;
+    margin: 0.25rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+  }
+}
+
+// ========================================
+// Fear & Greed 스타일
+// ========================================
+.post-content strong {
+  color: $primary-color;
+}
+
+// ========================================
+// Footer
+// ========================================
+.site-footer {
+  background: linear-gradient(135deg, $primary-color 0%, $secondary-color 100%);
+  border-top: none;
+  color: rgba(255,255,255,0.8);
+  padding: 2rem 0;
+
+  .footer-heading {
+    color: white;
+  }
+
+  a {
+    color: rgba(255,255,255,0.9);
+
+    &:hover {
+      color: $highlight-color;
+    }
+  }
+}
+
+// ========================================
+// Home Page
+// ========================================
 .home {
   .page-heading {
-    font-size: 2em;
-    margin-bottom: 0.25em;
+    font-size: 2.2rem;
+    color: $primary-color;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
   }
 
   .site-description {
-    color: #666;
-    font-size: 1.1em;
-    margin-bottom: 1.5em;
+    color: $text-light;
+    font-size: 1.15rem;
+    margin-bottom: 2rem;
   }
 }
 
-// Footer
-.site-footer {
-  background-color: $light-bg;
-  border-top: 2px solid $primary-color;
-
-  .footer-heading {
-    color: $primary-color;
-  }
-
-  .footer-bottom {
-    text-align: center;
-    padding-top: 1em;
-    margin-top: 1em;
-    border-top: 1px solid #ddd;
-    font-size: 0.85em;
-    color: #666;
-  }
-}
-
-// Responsive adjustments
-@media screen and (max-width: 600px) {
-  table {
-    font-size: 0.8em;
-
-    th, td {
-      padding: 0.4em 0.5em;
-    }
-  }
-
-  .home .page-heading {
-    font-size: 1.5em;
-  }
-}
-
-// Home page post list
 .post-list {
   list-style: none;
   padding: 0;
 
-  li {
-    margin-bottom: 2em;
-    padding-bottom: 1.5em;
-    border-bottom: 1px solid #eee;
+  > li {
+    background: $card-bg;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    }
   }
 
   .post-link {
-    font-size: 1.25em;
-    font-weight: 600;
+    font-size: 1.25rem;
+    font-weight: 700;
     color: $primary-color;
 
     &:hover {
-      color: $secondary-color;
+      color: $highlight-color;
+      text-decoration: none;
     }
+  }
+
+  .post-meta {
+    margin-top: 0.5rem;
   }
 }
 
-// Section dividers
-hr {
-  border: none;
-  border-top: 1px solid #ddd;
-  margin: 2em 0;
+// ========================================
+// Responsive
+// ========================================
+@media screen and (max-width: 768px) {
+  .post {
+    padding: 1.25rem;
+    border-radius: 0;
+    margin: 0 -15px;
+  }
+
+  .post-title {
+    font-size: 1.4rem;
+  }
+
+  table {
+    font-size: 0.85rem;
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  th, td {
+    padding: 0.6rem 0.75rem;
+    white-space: nowrap;
+  }
+
+  .post-content h2 {
+    font-size: 1.2rem;
+  }
+
+  blockquote {
+    padding: 1rem;
+    font-size: 0.95rem;
+  }
 }
 
-// Emoji sizing
-.emoji {
-  font-size: 1.1em;
+// ========================================
+// Print Styles
+// ========================================
+@media print {
+  .post-actions,
+  .site-header,
+  .site-footer,
+  .post-tags {
+    display: none !important;
+  }
+
+  .post {
+    box-shadow: none;
+    padding: 0;
+  }
+
+  body {
+    background: white;
+  }
+
+  table {
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+}
+
+// ========================================
+// 이모지 크기
+// ========================================
+h2, h3 {
+  .emoji, [role="img"] {
+    font-size: 1.1em;
+  }
+}
+
+// ========================================
+// 스크롤바 스타일
+// ========================================
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: $light-bg;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $accent-color;
+  border-radius: 4px;
+
+  &:hover {
+    background: $primary-color;
+  }
 }
